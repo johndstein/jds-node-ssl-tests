@@ -1,0 +1,33 @@
+{
+  "name": "jds-node-ssl-tests",
+  "version": "0.0.0",
+  "description": "Testing various SSL scenarios with node.",
+  "directories": {
+    "test": "test"
+  },
+  "devDependencies": {
+    "mocha": "~1.18.2",
+    "chai": "~1.9.1"
+  },
+  "scripts": {
+    "test": "mocha --recursive --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johndstein/jds-node-ssl-tests.git"
+  },
+  "keywords": [
+    "node",
+    "SSL",
+    "certificate",
+    "authority",
+    "self-signed",
+    "cert",
+    "self",
+    "signed"
+  ],
+  "author": "John Stein",
+  "bugs": {
+    "url": "https://github.com/johndstein/jds-node-ssl-tests/issues"
+  }
+}
