@@ -4,6 +4,9 @@ Various examples of how to connect to node.js server over SSL.
 
 Also examples of how to use SSL for client authentication.
 
+I always pull my hair out getting all the SSL config stuff right, and then
+the next time I have to do it I have forgotten, so . . . 
+
 ## Installation
 
     npm install

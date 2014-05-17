@@ -10,8 +10,11 @@ var cert = fs.readFileSync('certs/server.crt');
 
 var ca = fs.readFileSync('certs/ca.crt');
 
-// Various tests connecting to a server over SSL. These all use a self-signed
-// cert.
+// Various examples of connecting to a server over SSL. These all use a self-signed
+// cert and specify the certificate authority directly in the client options.
+//
+// See test/server-ssl-root-cas.js for example of how to simply add your
+// custom CA to the list of public trusted CAs.
 
 var port = 3333;
 
@@ -39,11 +42,12 @@ describe('HTTPS/SSL Server Tests', function() {
     }).listen(port);
 
     var agent = new https.Agent({
+      // The ca is the certificate authority that was used to sign the server
+      // cert and pfx. The CA tells this client whether or not we can trust
+      // the server certificate.
       // You need either a ca or rejectUnauthorized: false.
       // Of course rejectUnauthorized: false should only be used for testing since
       // you lose most of the benefit of SSL.
-      // The ca is the certificate authority that was used to sign the server
-      // cert and pfx.
       ca: [ca]
       // rejectUnauthorized: false
     });
@@ -196,7 +200,34 @@ describe('HTTPS/SSL Server Tests', function() {
     }).end();
   });
 
-  it('#7 will connect securely to ssl site with public ca', function(done) {
+  it('#7 will throw error if host header is not correct.', function(done) {
+    var port = getPort();
+    var serverOptions = {
+      pfx: pfx
+    };
+    https.createServer(serverOptions, function(req, res) {
+      res.end('Howdy');
+    }).listen(port);
+    var clientOptions = {
+      host: 'localhost',
+      port: port,
+      headers: {
+        host: 'x.y.com'
+      }
+    };
+    https.request(clientOptions, function(res) {
+      res.on('end', function(data) {
+        done(new Error('should never get here'));
+      });
+    })
+      .on('error', function(err) {
+        as("Hostname/IP doesn't match certificate's altnames" === err.message);
+        done();
+      });
+  });
+
+
+  it('#8 will connect securely to ssl site with public ca', function(done) {
     // This test here shows that node somehow knows about public certificate
     // authorities.
     // TODO not sure where node stores its list of trusted CAs.
@@ -216,7 +247,7 @@ describe('HTTPS/SSL Server Tests', function() {
     }).end();
   });
 
-  it('#8 will NOT connect to public site if you specify your own CA',
+  it('#9 will NOT connect to public site if you specify your own CA',
     function(done) {
       // Shows that specifying the ca array means you have to include all
       // CAs. It doesn't add to the ones that it already knows about.
