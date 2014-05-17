@@ -117,7 +117,8 @@ describe('HTTPS/SSL Server Tests', function() {
     }).end();
   });
 
-  it('#4 will "work" with rejectUnauthorized: false instead of ca.', function(done) {
+  it('#4 will "work" with rejectUnauthorized: false instead of ca.', function(
+    done) {
     var port = getPort();
     var serverOptions = {
       pfx: pfx
@@ -194,5 +195,46 @@ describe('HTTPS/SSL Server Tests', function() {
       });
     }).end();
   });
+
+  it('#7 will connect securely to ssl site with public ca', function(done) {
+    // This test here shows that node somehow knows about public certificate
+    // authorities.
+    // TODO not sure where node stores its list of trusted CAs.
+    var clientOptions = {
+      host: 'www.google.com',
+      port: 443,
+      path: '/'
+    };
+    https.request(clientOptions, function(res) {
+      res.on('data', function(data) {
+        //console.log(data.toString());
+      });
+      res.on('end', function() {
+        as(res.client.authorized && res.client.encrypted);
+        done();
+      });
+    }).end();
+  });
+
+  it('#8 will NOT connect to public site if you specify your own CA',
+    function(done) {
+      // Shows that specifying the ca array means you have to include all
+      // CAs. It doesn't add to the ones that it already knows about.
+      var clientOptions = {
+        host: 'www.google.com',
+        port: 443,
+        path: '/',
+        ca: [fs.readFileSync('certs/ca.crt')]
+      };
+      https.request(clientOptions, function(res) {
+        res.on('end', function() {
+          done(new Error('should never get here'));
+        });
+      })
+        .on('error', function(err) {
+          as(err.message = 'CERT_UNTRUSTED');
+          done();
+        });
+    });
 
 });
