@@ -19,3 +19,6 @@ Play around with this is you want to see how to generate certs.
 
     cd certs
     ./gen-certs.sh
+
+I used https://github.com/mikeal/request/tree/master/tests/ssl as a starting
+point.
